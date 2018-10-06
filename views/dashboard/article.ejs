@@ -1,6 +1,6 @@
 <% extend('../layout/dashboard-layout.ejs') %>
 
-<form method="POST" class="row justify-content-center">
+<form action="/dashboard/article/create" method="POST" class="row justify-content-center">
   <div class="col-md-6">
     <label for="title">請輸入標題</label>
     <input type="text" id="title" class="form-control" name="title" placeholder="標題" value="">
@@ -16,27 +16,14 @@
     <div class="card mb-3">
       <h6 class="card-header">分類</h6>
       <div class="card-body">
+        <% for (item in categories) { %>
         <div class="form-check">
           <label class="form-check-label">
-            <input class="form-check-input" type="radio" name="category" required value="-L2TajOWL1ycB_hwyiK-">
-            心得
+            <input class="form-check-input" type="radio" name="category" required value="<%= item %>">
+            <%= categories[item].name %>
           </label>
         </div>
-
-        <div class="form-check">
-          <label class="form-check-label">
-            <input class="form-check-input" type="radio" name="category" required value="-L2VDz-ovFCKMA34kfdY">
-            課程
-          </label>
-        </div>
-
-        <div class="form-check">
-          <label class="form-check-label">
-            <input class="form-check-input" type="radio" name="category" required value="-L3VkF87JcRmUUjxhi0g">
-            新聞
-          </label>
-        </div>
-
+        <% } %>
       </div>
     </div>
 

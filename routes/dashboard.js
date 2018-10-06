@@ -2,13 +2,32 @@ var express = require("express");
 var router = express.Router();
 var firebaseAdminDB = require("../firebase/admin");
 
-// 分類data路徑
+// data路徑
 const categoriesRef = firebaseAdminDB.ref("/categories/");
+const articlesRef = firebaseAdminDB.ref("/articles");
 
-router.get("/article", function(req, res, next) {
-  res.render("dashboard/article", {
-    title: "Express"
+// 新增文章頁面 article create
+router.get("/article/create", function(req, res) {
+  categoriesRef.once("value", val => {
+    res.render("dashboard/article", {
+      title: "Express",
+      categories: val.val()
+    });
   });
+});
+
+// 新增文章頁面 article create post
+router.post("/article/create", function(req, res) {
+  const data = req.body;
+  data.id = articlesRef.push().key;
+  data.updateTime = Math.floor(Date.now() / 1000);
+
+  articlesRef
+    .push()
+    .set(data)
+    .then(() => {
+      res.redirect("/dashboard/article/create");
+    });
 });
 
 router.get("/archives", function(req, res, next) {
