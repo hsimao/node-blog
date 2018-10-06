@@ -20,23 +20,13 @@
           <!-- 使用moment來格式化時間戳 -->
           <%= moment(articles[item].updateTime * 1000).format('YYYY/MM/DD') %>,
           <span class="fa fa-folder-open-o"></span>
-
-          <!-- 核對該篇文章種類，顯示對應分類名稱 -->
-          <% if (articles[item].category){ %>
-          <% let type = null %>
-          <% for (itemVal in categories) {
-            if (categories[itemVal].id === articles[item].category) {
-              type = categories[itemVal].name
-            }} %>
-          <%= type %>
-          <% }else{ %>
-          <span>沒有分類</span>
-          <% } %>
-
+          <span>
+            <%= categories[articles[item].category].name %>
+          </span>
         </div>
       </div>
       <div class="card-footer p-0 btn-group">
-        <a href="#" class="btn btn-outline-danger rounded-0 deletePost" data-id="-L1zrsyiWCAbMQ5x8Plk" data-title="補充課程：Sass 與 includePaths">刪除</a>
+        <a href="#" class="btn btn-outline-danger rounded-0 deletePost" data-id="<%= articles[item].id %>" data-title="<%= articles[item].title %>">刪除</a>
         <a href="#" class="btn btn-outline-secondary w-100 rounded-0">編輯</a>
         <a href="#" target="_blank" class="btn btn-outline-secondary w-100 rounded-0">預覽</a>
       </div>
@@ -65,3 +55,32 @@
     </li>
   </ul>
 </nav>
+
+<script>
+  $(function () {
+
+    $('.deletePost').on('click', function (e) {
+      e.preventDefault();
+      var id = $(this).data('id');
+      var title = $(this).data('title');
+
+      if (confirm('確認是否刪除' + title + '文章？')) {
+        // 使用ajax刪除資料庫該筆文章
+        $.ajax({
+          url: '/dashboard/article/delete/' + id,
+          method: 'POST'
+        }).done(function (res) {
+          // 刪除dom元素
+          $('.deletePost').each(function (index, item) {
+            if ($(item).data('id') === id) {
+              $(item).closest('.card').remove();
+            }
+          });
+        });
+      }
+
+    });
+
+  });
+
+</script>

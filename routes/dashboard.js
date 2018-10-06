@@ -62,6 +62,18 @@ router.post("/article/update/:id", function(req, res) {
     });
 });
 
+// 刪除文章 deleted article
+router.post("/article/delete/:id", function(req, res) {
+  // 取得網址所帶的id參數
+  const id = req.param("id");
+  articlesRef.child(id).remove();
+  req.flash("info", "文章已刪除");
+  // 使用ajax的話可改用res.end()來取代redirect重新導向
+  res.send("文章已刪除");
+  res.end();
+  // res.redirect("/dashboard/categories");
+});
+
 // 文章列表
 router.get("/archives", function(req, res) {
   // 抓取當前文章狀態 /dashboard/archives?status=public

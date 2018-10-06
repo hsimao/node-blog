@@ -36,8 +36,8 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link active" href="archives.html">文章管理 </a>
-        <a class="nav-item nav-link " href="categories.html">分類管理 </a>
+        <a class="nav-item nav-link" href="/dashboard/archives">文章管理 </a>
+        <a class="nav-item nav-link " href="/dashboard/categories">分類管理 </a>
       </div>
     </div>
     <a class="nav-link" href="#">登出</a>
@@ -50,6 +50,13 @@
   <footer class="mt-5 py-3 bg-light text-secondary text-center">
     六角學院後台管理系統
   </footer>
+  <script>
+    // navbar item active 切換
+    let isArchives = /archives/g.test(window.location.pathname)
+    let isCategories = /categories/g.test(window.location.pathname)
+    if (isArchives) $('#navbarNavAltMarkup .nav-item').eq(0).addClass('active')
+    if (isCategories) $('#navbarNavAltMarkup .nav-item').eq(1).addClass('active')
+  </script>
 </body>
 
 </html>
