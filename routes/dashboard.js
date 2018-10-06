@@ -19,11 +19,14 @@ router.get("/archives", function(req, res, next) {
 
 // 取得文章分類 get post category
 router.get("/categories", function(req, res, next) {
+  const message = req.flash("info")[0];
+  console.log(message);
   categoriesRef.once("value").then(val => {
     const categories = val.val();
     res.render("dashboard/categories", {
       title: "Express",
-      categories
+      categories,
+      message
     });
   });
 });
@@ -45,8 +48,10 @@ router.post("/categories/create", function(req, res) {
 
 // 刪除文章分類 deleted post category
 router.post("/categories/delete/:id", function(req, res) {
-  const id = req.param("id"); //取得網址所帶的id參數
+  //取得網址所帶的id參數
+  const id = req.param("id");
   categoriesRef.child(id).remove();
+  req.flash("info", "欄位已刪除");
   res.redirect("/dashboard/categories");
 });
 
