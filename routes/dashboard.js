@@ -1,6 +1,8 @@
 var express = require("express");
 var router = express.Router();
 var firebaseAdminDB = require("../firebase/admin");
+const moment = require("moment");
+const stringtags = require("striptags");
 
 // data路徑
 const categoriesRef = firebaseAdminDB.ref("/categories/");
@@ -61,10 +63,32 @@ router.post("/article/update/:id", function(req, res) {
     });
 });
 
-router.get("/archives", function(req, res, next) {
-  res.render("dashboard/archives", {
-    title: "Express"
-  });
+// 文章列表
+router.get("/archives", function(req, res) {
+  let categories = {};
+  categoriesRef
+    .once("value")
+    .then(val => {
+      categories = val.val();
+      // 取出文章資料，依updateTime排序
+      return articlesRef.orderByChild("updateTime").once("value");
+    })
+    .then(val => {
+      // 將文章物件資料轉成陣列
+      let articles = [];
+      val.forEach(childVal => {
+        articles.push(childVal.val());
+      });
+      console.log("屬性：", categories);
+      articles.reverse(); // 文章資料排序反轉(最先創建文章在上方=>最後創建文章在上方)
+      res.render("dashboard/archives", {
+        title: "Express",
+        articles,
+        categories,
+        stringtags,
+        moment
+      });
+    });
 });
 
 // 取得文章分類 get post category
