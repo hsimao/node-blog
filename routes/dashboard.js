@@ -6,6 +6,26 @@ var firebaseAdminDB = require("../firebase/admin");
 const categoriesRef = firebaseAdminDB.ref("/categories/");
 const articlesRef = firebaseAdminDB.ref("/articles");
 
+// 讀取單一文章頁面 show article
+router.get("/article/:id", function(req, res) {
+  const id = req.param("id");
+  // console.log(id);
+  let categories = {};
+  categoriesRef
+    .once("value")
+    .then(val => {
+      categories = val.val();
+      return articlesRef.child(id).once("value");
+    })
+    .then(val => {
+      res.render("dashboard/article", {
+        title: "Express",
+        categories: categories,
+        article: val.val()
+      });
+    });
+});
+
 // 新增文章頁面 article create
 router.get("/article/create", function(req, res) {
   categoriesRef.once("value", val => {
@@ -16,17 +36,28 @@ router.get("/article/create", function(req, res) {
   });
 });
 
-// 新增文章頁面 article create post
+// 新增文章頁面post  article create post
 router.post("/article/create", function(req, res) {
   const data = req.body;
-  data.id = articlesRef.push().key;
+  const articleRef = articlesRef.push();
+  data.id = articleRef.key;
   data.updateTime = Math.floor(Date.now() / 1000);
 
+  articleRef.set(data).then(() => {
+    res.redirect(`/dashboard/article/${data.id}`);
+  });
+});
+
+// 更新文章 article/update post
+router.post("/article/update/:id", function(req, res) {
+  const data = req.body;
+  const id = req.param("id").replace(/^\s+|\s+$/g, "");
+  data.lastUpdateTime = Math.floor(Date.now() / 1000);
   articlesRef
-    .push()
-    .set(data)
+    .child(id)
+    .update(data)
     .then(() => {
-      res.redirect("/dashboard/article/create");
+      res.redirect(`/dashboard/article/${id}`);
     });
 });
 
@@ -54,12 +85,6 @@ router.post("/categories/create", function(req, res) {
   let pathRepeat = true;
   let nameRepeat = true;
   const data = req.body;
-  // 抓出firebase隨機產生的key, 存入本次新增的屬性內,作為索引值
-  // 先新增一筆空資料, 抓出key
-  const categoryRef = categoriesRef.push();
-  const key = categoryRef.key;
-  // 將key存入本次的資料物件內
-  data.id = key;
 
   function setCategory() {
     // 抓出firebase隨機產生的key, 存入本次新增的屬性內,作為索引值
@@ -75,33 +100,44 @@ router.post("/categories/create", function(req, res) {
     }
   }
 
-  // 判斷資料庫是否已有相同分類路徑
-  categoriesRef
-    .orderByChild("path") // orderByChild() => 搜尋特定欄位
-    .equalTo(data.path) // equalTo() => 判斷是否相同
-    .once("value", val => {
-      if (val.val() !== null) {
-        req.flash("info", "已有相同路徑");
-
-        res.redirect("/dashboard/categories");
-      } else {
-        pathRepeat = false;
-        setCategory();
-      }
-    });
-  // 判斷資料庫是否已有相同分類名稱
-  categoriesRef
-    .orderByChild("name")
-    .equalTo(data.name)
-    .once("value", val => {
-      if (val.val() !== null) {
-        req.flash("info", "已有相同分類名稱");
-        res.redirect("/dashboard/categories");
-      } else {
-        nameRepeat = false;
-        setCategory();
-      }
-    });
+  if (!data.path) {
+    req.flash("info", "路徑不可為空");
+    res.redirect("/dashboard/categories");
+  } else {
+    data.path = data.path.replace(/\s+/g, ""); // 去除所有空格
+    // 判斷資料庫是否已有相同分類路徑
+    categoriesRef
+      .orderByChild("path") // orderByChild() => 搜尋特定欄位
+      .equalTo(data.path) // equalTo() => 判斷是否相同
+      .once("value", val => {
+        if (val.val() !== null) {
+          req.flash("info", "已有相同路徑");
+          res.redirect("/dashboard/categories");
+        } else {
+          pathRepeat = false;
+          setCategory();
+        }
+      });
+  }
+  if (!data.name) {
+    req.flash("info", "名稱不可為空");
+    res.redirect("/dashboard/categories");
+  } else {
+    data.name = data.name.replace(/^\s+|\s+$/g, ""); // 僅去除頭跟尾空格
+    // 判斷資料庫是否已有相同分類名稱
+    categoriesRef
+      .orderByChild("name")
+      .equalTo(data.name)
+      .once("value", val => {
+        if (val.val() !== null) {
+          req.flash("info", "已有相同分類名稱");
+          res.redirect("/dashboard/categories");
+        } else {
+          nameRepeat = false;
+          setCategory();
+        }
+      });
+  }
 });
 
 // 刪除文章分類 deleted post category
