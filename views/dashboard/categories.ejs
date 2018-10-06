@@ -18,7 +18,7 @@
           </td>
           <td><input type="text" class="form-control form-control-sm" value="<%= categories[item].path %>"></td>
           <td class="align-middle">
-            <form method="POST">
+            <form action="/dashboard/categories/delete/<%= categories[item].id %>" method="POST">
               <button type="submit" class="btn btn-outline-danger btn-sm">刪除</button>
             </form>
           </td>

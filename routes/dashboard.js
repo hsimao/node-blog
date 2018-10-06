@@ -17,6 +17,7 @@ router.get("/archives", function(req, res, next) {
   });
 });
 
+// 取得文章分類 get post category
 router.get("/categories", function(req, res, next) {
   categoriesRef.once("value").then(val => {
     const categories = val.val();
@@ -27,7 +28,7 @@ router.get("/categories", function(req, res, next) {
   });
 });
 
-// 新增分類
+// 新增文章分類 create post category
 router.post("/categories/create", function(req, res) {
   const data = req.body;
   // 抓出firebase隨機產生的key, 存入本次新增的屬性內,作為索引值
@@ -40,6 +41,13 @@ router.post("/categories/create", function(req, res) {
   categoryRef.set(data).then(() => {
     res.redirect("/dashboard/categories");
   });
+});
+
+// 刪除文章分類 deleted post category
+router.post("/categories/delete/:id", function(req, res) {
+  const id = req.param("id"); //取得網址所帶的id參數
+  categoriesRef.child(id).remove();
+  res.redirect("/dashboard/categories");
 });
 
 module.exports = router;
