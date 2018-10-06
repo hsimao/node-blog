@@ -11,7 +11,6 @@ const articlesRef = firebaseAdminDB.ref("/articles");
 // 讀取單一文章頁面 show article
 router.get("/article/:id", function(req, res) {
   const id = req.param("id");
-  // console.log(id);
   let categories = {};
   categoriesRef
     .once("value")
@@ -65,6 +64,8 @@ router.post("/article/update/:id", function(req, res) {
 
 // 文章列表
 router.get("/archives", function(req, res) {
+  // 抓取當前文章狀態 /dashboard/archives?status=public
+  const status = req.query.status || "public";
   let categories = {};
   categoriesRef
     .once("value")
@@ -77,16 +78,18 @@ router.get("/archives", function(req, res) {
       // 將文章物件資料轉成陣列
       let articles = [];
       val.forEach(childVal => {
-        articles.push(childVal.val());
+        if (status === childVal.val().status) {
+          articles.push(childVal.val());
+        }
       });
-      console.log("屬性：", categories);
       articles.reverse(); // 文章資料排序反轉(最先創建文章在上方=>最後創建文章在上方)
       res.render("dashboard/archives", {
         title: "Express",
         articles,
         categories,
         stringtags,
-        moment
+        moment,
+        status
       });
     });
 });

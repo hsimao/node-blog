@@ -3,8 +3,8 @@
 <div class="row justify-content-center">
   <div class="col-md-6">
     <div class="btn-group w-100">
-      <a href="#" class="btn btn-outline-secondary w-100 rounded-0 active">已發佈</a>
-      <a href="#" class="btn btn-outline-secondary w-100 rounded-0 ">草稿</a>
+      <a href="/dashboard/archives?status=public" class="btn btn-outline-secondary w-100 rounded-0 <% if(status == 'public') { %>active<% } %>">已發佈</a>
+      <a href="/dashboard/archives?status=draft" class="btn btn-outline-secondary w-100 rounded-0 <% if(status == 'draft') { %>active<% } %>">草稿</a>
       <a href="article.html" class="btn btn-primary">新增文章</a>
     </div>
     <% for (item in articles) { %>
