@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var firebaseAdminDB = require("../firebase/admin");
+const pagination = require("../modules/pagination");
 const moment = require("moment");
 const stringtags = require("striptags");
 
@@ -78,6 +79,7 @@ router.post("/article/delete/:id", function(req, res) {
 router.get("/archives", function(req, res) {
   // 抓取當前文章狀態 /dashboard/archives?status=public
   const status = req.query.status || "public";
+  let currentPage = Number.parseInt(req.query.page) || 1;
   let categories = {};
   categoriesRef
     .once("value")
@@ -95,9 +97,12 @@ router.get("/archives", function(req, res) {
         }
       });
       articles.reverse(); // 文章資料排序反轉(最先創建文章在上方=>最後創建文章在上方)
+
+      const data = pagination(articles, currentPage);
       res.render("dashboard/archives", {
         title: "Express",
-        articles,
+        articles: data.newData,
+        page: data.page,
         categories,
         stringtags,
         moment,
