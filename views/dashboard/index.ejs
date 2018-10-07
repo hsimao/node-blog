@@ -1,0 +1,14 @@
+<% extend('../layout/dashboard-layout.ejs') %>
+
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="btn-group w-100">
+      <a href="article.html" class="btn btn-primary">管理頁面</a>
+    </div>
+    <% if (auth) { %>
+    <h1>已登入</h1>
+    <% } else { %>
+    <h1>未登入</h1>
+    <% } %>
+  </div>
+</div>

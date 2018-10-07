@@ -9,6 +9,13 @@ const stringtags = require("striptags");
 const categoriesRef = firebaseAdminDB.ref("/categories/");
 const articlesRef = firebaseAdminDB.ref("/articles");
 
+router.get("/", (req, res) => {
+  const auth = req.session.uid;
+  res.render("dashboard/index", {
+    auth
+  });
+});
+
 // 讀取單一文章頁面 show article
 router.get("/article/:id", function(req, res) {
   const id = req.param("id");

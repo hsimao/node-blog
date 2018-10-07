@@ -8,6 +8,7 @@ var session = require("express-session");
 
 var indexRouter = require("./routes/index");
 var dashboardRouter = require("./routes/dashboard");
+var authRouter = require("./routes/auth");
 
 var app = express();
 
@@ -28,13 +29,14 @@ app.use(
     secret: "keyboard cat",
     resave: true,
     saveUninitialized: true,
-    cookie: { maxAge: 100 * 1000 }
+    cookie: { maxAge: 60 * 10 * 1000 } // 10分鐘
   })
 );
 app.use(flash());
 
 app.use("/", indexRouter);
 app.use("/dashboard", dashboardRouter);
+app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

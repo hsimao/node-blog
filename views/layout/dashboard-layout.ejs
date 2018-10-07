@@ -40,7 +40,12 @@
         <a class="nav-item nav-link " href="/dashboard/categories">分類管理 </a>
       </div>
     </div>
-    <a class="nav-link" href="#">登出</a>
+    <% if (auth) { %>
+    <a class="nav-link" href="/auth/signout">登出</a>
+    <% } else {%>
+    <a class="nav-link" href="/auth/signin">登入</a>
+    <a class="nav-link" href="/autg/signup">註冊</a>
+    <% } %>
   </nav>
 
   <div class="main container-fluid my-4">
@@ -48,7 +53,7 @@
   </div>
 
   <footer class="mt-5 py-3 bg-light text-secondary text-center">
-    六角學院後台管理系統
+    部落格後台管理系統
   </footer>
   <script>
     // navbar item active 切換
