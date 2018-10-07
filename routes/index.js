@@ -33,13 +33,12 @@ router.get("/", function(req, res) {
       // 資料數量
       const totalResult = articles.length;
       // 每頁呈現數量
-      const perpage = 5;
+      const perpage = 3;
       // 總頁數
       const pageTotal = Math.ceil(totalResult / perpage);
       // 當前頁數
-      let currentPage = req.query.page || 1;
-      // 如果當前頁面小於1 或不是數字就=1
-      if (currentPage < 1 || !/^\d+$/.test(currentPage)) currentPage = 1;
+      let currentPage = Number.parseInt(req.query.page) || 1;
+      if (currentPage < 1) currentPage = 1;
       if (currentPage > pageTotal) currentPage = pageTotal;
 
       // 當下頁面需呈現資料位置換算
@@ -61,9 +60,7 @@ router.get("/", function(req, res) {
       });
       const page = {
         pageTotal,
-        currentPage,
-        prev: currentPage > 1,
-        next: currentPage < pageTotal
+        currentPage
       };
       // == 分頁邏輯結束
 
