@@ -1,0 +1,29 @@
+<nav class="my-5" aria-label="Page navigation example">
+  <ul class="pagination justify-content-center">
+    <li class="page-item <% if (page.currentPage <= 1) { %>disabled<% } %>">
+      <a class="page-link" href="/?page=<%= page.currentPage - 1 %>" tabindex="-1">Previous</a>
+    </li>
+    <% for (var i = 1; i < page.pageTotal + 1; i++) { %>
+    <li class="page-item <% if (page.currentPage == i){ %>active<%}%>">
+      <a class="page-link" href="/?page=<%= i %>">
+        <%= i  %>
+      </a>
+    </li>
+    <% } %>
+    <li class="page-item <% if (page.currentPage >= page.pageTotal) { %>disabled<% } %>">
+      <a class="page-link" href="/?page=<%= page.currentPage + 1 %>">Next</a>
+    </li>
+  </ul>
+</nav>
+<script>
+  window.addEventListener('load', function () {
+    // 抓取當前路由更新link前綴
+    let router = location.pathname;
+    if (!router) router = '/'
+    let links = document.querySelectorAll('.pagination .page-link')
+    links.forEach((item) => {
+      let newRouter = item.getAttribute('href').split('/').join(router)
+      item.setAttribute('href', newRouter)
+    });
+  });
+</script>

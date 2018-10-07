@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var firebaseAdminDB = require("../firebase/admin");
+const pagination = require("../modules/pagination");
 const moment = require("moment");
 const stringtags = require("striptags");
 
@@ -10,6 +11,7 @@ const articlesRef = firebaseAdminDB.ref("/articles");
 
 // 文章列表
 router.get("/", function(req, res) {
+  let currentPage = Number.parseInt(req.query.page) || 1;
   let categories = {};
   categoriesRef
     .once("value")
@@ -29,46 +31,13 @@ router.get("/", function(req, res) {
       });
       articles.reverse(); // 文章資料排序反轉(最先創建文章在上方=>最後創建文章在上方)
 
-      // == 分頁邏輯開始
-      // 資料數量
-      const totalResult = articles.length;
-      // 每頁呈現數量
-      const perpage = 3;
-      // 總頁數
-      const pageTotal = Math.ceil(totalResult / perpage);
-      // 當前頁數
-      let currentPage = Number.parseInt(req.query.page) || 1;
-      if (currentPage < 1) currentPage = 1;
-      if (currentPage > pageTotal) currentPage = pageTotal;
-
-      // 當下頁面需呈現資料位置換算
-      // 該頁資料起始位置
-      const minItem = currentPage * perpage - perpage + 1;
-      // 該頁資料結束位置
-      const maxItem = currentPage * perpage;
-      // console.log(
-      //   `總資料筆數:${totalResult}, 每頁呈現數量:${perpage}, 總頁數:${pageTotal}, 當前頁數:${currentPage}, 當前頁面第一筆:${minItem}, 當前頁面最後一筆${maxItem}`
-      // );
-
-      // 依據分頁條件印出資料
-      let newArticles = [];
-      articles.forEach((item, index) => {
-        let itemNum = index + 1;
-        if (itemNum >= minItem && itemNum <= maxItem) {
-          newArticles.push(item);
-        }
-      });
-      const page = {
-        pageTotal,
-        currentPage
-      };
-      // == 分頁邏輯結束
+      const data = pagination(articles, currentPage);
 
       res.render("index", {
         title: "Express",
-        articles: newArticles,
+        articles: data.newData,
+        page: data.page,
         categories,
-        page,
         stringtags,
         moment
       });
