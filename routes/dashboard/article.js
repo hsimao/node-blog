@@ -9,30 +9,39 @@ require("dotenv").config();
 // data路徑
 const categoriesRef = firebaseAdminDB.ref("/categories/");
 const articlesRef = firebaseAdminDB.ref("/articles");
+const usersRef = firebaseAdminDB.ref("/users");
 
 // 文章列表
 router.get("/", function(req, res) {
   // 抓取當前文章狀態 /dashboard/archives?status=public
   const status = req.query.status || "public";
+  const userId = req.session.uid;
+  const messages = req.flash("messages")[0];
+  let users = {};
   let currentPage = Number.parseInt(req.query.page) || 1;
   let categories = {};
   categoriesRef
     .once("value")
     .then(val => {
       categories = val.val();
+      return usersRef.once("value");
+    })
+    .then(userVal => {
+      users = userVal.val();
       // 取出文章資料，依updateTime排序
       return articlesRef.orderByChild("updateTime").once("value");
     })
-    .then(val => {
+    .then(articlesVal => {
       // 將文章物件資料轉成陣列
       let articles = [];
-      val.forEach(childVal => {
-        if (status === childVal.val().status) {
+      articlesVal.forEach(childVal => {
+        // 如果符合當status、且是作者本人才push
+        if (status === childVal.val().status && userId === childVal.val().userId) {
           articles.push(childVal.val());
         }
       });
+      // 將作者名稱輸入articles物件內
       articles.reverse(); // 文章資料排序反轉(最先創建文章在上方=>最後創建文章在上方)
-
       const data = pagination(articles, currentPage);
       res.render("dashboard/archives", {
         title: "Express",
@@ -42,7 +51,9 @@ router.get("/", function(req, res) {
         stringtags,
         moment,
         status,
-        auth: req.session.uid
+        users,
+        auth: userId,
+        messages
       });
     });
 });
@@ -67,7 +78,8 @@ router.post("/create", function(req, res) {
   data.updateTime = Math.floor(Date.now() / 1000);
 
   articleRef.set(data).then(() => {
-    res.redirect(`/dashboard/article/${data.id}`);
+    req.flash("messages", "已新增" + req.body.title);
+    res.redirect("/dashboard/article");
   });
 });
 
@@ -80,7 +92,7 @@ router.post("/update/:id", function(req, res) {
     .child(id)
     .update(data)
     .then(() => {
-      res.redirect(`/dashboard/article/${id}`);
+      res.redirect("/dashboard/article");
     });
 });
 

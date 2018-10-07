@@ -21,7 +21,9 @@
         <%= article.title || '' %>
       </h1>
       <div class="d-flex flex-row text-secondary small">
-        <div class="p-2"><i class="fa fa-user-o" aria-hidden="true"></i> 卡斯伯</div>
+        <div class="p-2"><i class="fa fa-user-o" aria-hidden="true"></i>
+          <%= author %>
+        </div>
         <div class="p-2">
           <%= moment(article.updateTime * 1000).format('YYYY/MM/DD h:mm') %>
         </div>

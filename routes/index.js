@@ -8,22 +8,28 @@ const stringtags = require("striptags");
 // data路徑
 const categoriesRef = firebaseAdminDB.ref("/categories/");
 const articlesRef = firebaseAdminDB.ref("/articles");
+const usersRef = firebaseAdminDB.ref("/users");
 
 // 文章列表
 router.get("/", function(req, res) {
   let currentPage = Number.parseInt(req.query.page) || 1;
   let categories = {};
+  let users = {};
   categoriesRef
     .once("value")
     .then(val => {
       categories = val.val();
+      return usersRef.once("value");
+    })
+    .then(userVal => {
+      users = userVal.val();
       // 取出文章資料，依updateTime排序
       return articlesRef.orderByChild("updateTime").once("value");
     })
-    .then(val => {
+    .then(articlesVal => {
       // 將文章物件資料轉成陣列
       let articles = [];
-      val.forEach(childVal => {
+      articlesVal.forEach(childVal => {
         // 只顯示公開文章
         if ("public" === childVal.val().status) {
           articles.push(childVal.val());
@@ -39,7 +45,8 @@ router.get("/", function(req, res) {
         page: data.page,
         categories,
         stringtags,
-        moment
+        moment,
+        users
       });
     });
 });
@@ -48,6 +55,7 @@ router.get("/", function(req, res) {
 router.get("/post/:id", function(req, res) {
   const id = req.param("id");
   let categories = {};
+  let article = {};
   categoriesRef
     .once("value")
     .then(val => {
@@ -55,9 +63,14 @@ router.get("/post/:id", function(req, res) {
       return articlesRef.child(id).once("value");
     })
     .then(val => {
+      article = val.val();
+      return firebaseAdminDB.ref("/users/" + val.val().userId).once("value");
+    })
+    .then(val => {
       res.render("post", {
         categories: categories,
-        article: val.val(),
+        author: val.val().nickname,
+        article,
         moment
       });
     });

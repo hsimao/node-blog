@@ -2,10 +2,15 @@
 
 <div class="row justify-content-center">
   <div class="col-md-6">
+    <% if(messages) { %>
+    <div class="alert alert-warning">
+      <%= messages %>
+    </div>
+    <% } %>
     <div class="btn-group w-100">
-      <a href="/dashboard/archives?status=public" class="btn btn-outline-secondary w-100 rounded-0 <% if(status == 'public') { %>active<% } %>">已發佈</a>
-      <a href="/dashboard/archives?status=draft" class="btn btn-outline-secondary w-100 rounded-0 <% if(status == 'draft') { %>active<% } %>">草稿</a>
-      <a href="article.html" class="btn btn-primary">新增文章</a>
+      <a href="/dashboard/article?status=public" class="btn btn-outline-secondary w-100 rounded-0 <% if(status == 'public') { %>active<% } %>">已發佈</a>
+      <a href="/dashboard/article?status=draft" class="btn btn-outline-secondary w-100 rounded-0 <% if(status == 'draft') { %>active<% } %>">草稿</a>
+      <a href="/dashboard/article/create" class="btn btn-primary">新增文章</a>
     </div>
     <% for (item in articles) { %>
     <div class="card my-3">
@@ -21,14 +26,18 @@
           <%= moment(articles[item].updateTime * 1000).format('YYYY/MM/DD') %>,
           <span class="fa fa-folder-open-o"></span>
           <span>
-            <%= categories[articles[item].category].name %>
+            <%= categories[articles[item].category].name %>,
+          </span>
+          <span>
+            <i class="fa fa-user-o"></i>
+            <%= users[articles[item].userId].nickname %>
           </span>
         </div>
       </div>
       <div class="card-footer p-0 btn-group">
         <a href="#" class="btn btn-outline-danger rounded-0 deletePost" data-id="<%= articles[item].id %>" data-title="<%= articles[item].title %>">刪除</a>
-        <a href="#" class="btn btn-outline-secondary w-100 rounded-0">編輯</a>
-        <a href="#" target="_blank" class="btn btn-outline-secondary w-100 rounded-0">預覽</a>
+        <a href="/dashboard/article/<%= articles[item].id %>" class="btn btn-outline-secondary w-100 rounded-0">編輯</a>
+        <a href="/post/<%= articles[item].id %>" target="_blank" class="btn btn-outline-secondary w-100 rounded-0">預覽</a>
       </div>
     </div>
     <% } %>
