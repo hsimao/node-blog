@@ -7,9 +7,10 @@ var flash = require("connect-flash");
 var session = require("express-session");
 
 var indexRouter = require("./routes/index");
-var dashboardRouter = require("./routes/dashboard");
 var authRouter = require("./routes/auth");
-
+var dashboardRouter = require("./routes/dashboard/index");
+var dashboardArticleRouter = require("./routes/dashboard/article");
+var dashboardCategoriesRouter = require("./routes/dashboard/categories");
 var app = express();
 
 // view engine setup
@@ -34,8 +35,20 @@ app.use(
 );
 app.use(flash());
 
+// 確認是否有登入 check
+const authCheck = function(req, res, next) {
+  if (req.session.uid) {
+    return next();
+  } else {
+    req.flash("messages", "請先登入");
+    return res.redirect("/auth/signin");
+  }
+};
+
 app.use("/", indexRouter);
 app.use("/dashboard", dashboardRouter);
+app.use("/dashboard/article", authCheck, dashboardArticleRouter);
+app.use("/dashboard/categories", dashboardCategoriesRouter);
 app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler

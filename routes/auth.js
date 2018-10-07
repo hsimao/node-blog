@@ -9,7 +9,8 @@ router.get("/signup", (req, res) => {
   const messages = req.flash("messages")[0];
   res.render("dashboard/signup", {
     title: "註冊",
-    messages
+    messages,
+    auth: req.session.uid
   });
 });
 
@@ -27,10 +28,10 @@ router.post("/signup", function(req, res) {
         nickname: nickname,
         uid: value.user.uid
       };
-
+      req.session.uid = value.user.uid;
       firebaseAdmin.ref("/users/" + value.user.uid).set(userData);
-      req.flash("messages", "註冊完成");
-      res.redirect("/auth/signup");
+      req.flash("messages", "註冊成功，目前已經登入");
+      res.redirect("/dashboard");
     })
     .catch(error => {
       var errorMessage = "註冊失敗！";
@@ -39,14 +40,16 @@ router.post("/signup", function(req, res) {
       if (error.code == "auth/email-already-in-use") errorMessage = "此信箱已經有人使用。";
       console.log(error);
       req.flash("messages", errorMessage);
-      res.redirect("/dashboard/signin");
+      res.redirect("/auth/signup");
     });
 });
 
 // 登入頁面
 router.get("/signin", function(req, res) {
   const auth = req.session.uid;
+
   const messages = req.flash("messages")[0];
+  console.log(messages);
   res.render("dashboard/signin", {
     title: "登入",
     messages,
@@ -55,14 +58,11 @@ router.get("/signin", function(req, res) {
 });
 
 router.post("/signin", (req, res) => {
-  console.log(req.body.email);
-  console.log(req.body.password);
   fireAuth
     .signInWithEmailAndPassword(req.body.email, req.body.password)
     .then(val => {
-      console.log(val.user.uid);
       req.session.uid = val.user.uid;
-      res.redirect("/auth/signin");
+      res.redirect("/dashboard");
     })
     .catch(error => {
       let errorMessage = "登入失敗。";
@@ -77,7 +77,6 @@ router.post("/signin", (req, res) => {
 
 // 登出
 router.get("/signout", (req, res) => {
-  console.log("yo");
   req.session.uid = "";
   res.redirect("/dashboard");
 });
