@@ -73,6 +73,11 @@ router.get("/post/:id", function(req, res) {
         article,
         moment
       });
+    })
+    .catch(error => {
+      res.render("error", {
+        title: '找不到該文章'
+      });
     });
 });
 
